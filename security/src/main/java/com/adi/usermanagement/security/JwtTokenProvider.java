@@ -4,18 +4,13 @@ import com.adi.usermanagement.security.dto.UserDTOInternal;
 import com.adi.usermanagement.security.exception.ErrorCodeList;
 import com.adi.usermanagement.security.exception.ResourceNotFoundException;
 import com.adi.usermanagement.security.exception.appException;
-import com.adi.usermanagement.security.models.User;
 import com.adi.usermanagement.security.service.impl.UserServiceImpl;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.impl.DefaultClock;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,8 +19,6 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger( JwtTokenProvider.class );
 
     UserServiceImpl userService;
 

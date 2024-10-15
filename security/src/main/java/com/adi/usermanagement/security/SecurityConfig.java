@@ -91,7 +91,7 @@ public class SecurityConfig {
                 .csrf( AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( ( authorize ) -> authorize
                         // TUTTE LE RICHIESTE CHE INIZIANO CON /API/AUTH/ SONO ACCESSIBILI DA TUTTI
-                        .requestMatchers( "/api/test/**" ).permitAll()
+                        .requestMatchers( "/api/user-management/**" ).permitAll()
 
                         // SERVIREBBE NEL CASO SI IMPLEMENTA LO SWAGGER PER REINDIRIZZARE A TALE PAGINA
                         .requestMatchers( "/" ).permitAll()
