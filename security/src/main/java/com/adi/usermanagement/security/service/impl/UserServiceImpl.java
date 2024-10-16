@@ -1,14 +1,17 @@
 package com.adi.usermanagement.security.service.impl;
 
-import com.adi.usermanagement.security.dto.ProfileDTO;
-import com.adi.usermanagement.security.dto.ProfilePermissionDTO;
-import com.adi.usermanagement.security.dto.UserDTO;
-import com.adi.usermanagement.security.dto.UserDTOInternal;
-import com.adi.usermanagement.security.service.ApiService;
+import com.adi.usermanagement.security.dto.*;
+import com.adi.usermanagement.security.exception.ErrorCodeList;
+import com.adi.usermanagement.security.exception.appException;
+import com.adi.usermanagement.security.service.UserApiService;
 import com.adi.usermanagement.security.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,16 +19,16 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final ApiService apiService;
+    private final UserApiService userApiService;
 
     @Override
     public UserDTO findById( Long id ) {
-        return apiService.getById( id ).block();
+        return userApiService.getById( id ).block();
     }
 
     @Override
     public ProfileDTO getProfile( Long userId ) {
-        return apiService.getProfile( userId ).block();
+        return userApiService.getProfile( userId ).block();
     }
 
     /**
@@ -35,7 +38,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Optional<UserDTOInternal> findByUsernameOrEmail( String usernameOrEmail) {
-        return apiService.getUserData(usernameOrEmail)
+        return userApiService.getUserData(usernameOrEmail)
                 .map(Optional::of)
                 .defaultIfEmpty(Optional.empty())
                 .block();
@@ -48,7 +51,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean existsByUsernameOrEmail( String usernameOrEmail ) {
-        return Boolean.TRUE.equals( apiService.existsByUsernameOrEmail( usernameOrEmail ).block() );
+        return Boolean.TRUE.equals( userApiService.existsByUsernameOrEmail( usernameOrEmail ).block() );
     }
 
     /**
@@ -58,6 +61,69 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Set<ProfilePermissionDTO> getProfilePermissions( Long profileId ) {
-        return apiService.getProfilePermissions( profileId ).block();
+        return userApiService.getProfilePermissions( profileId ).block();
+    }
+
+    /**
+     * Ritorna tutti gli utenti
+     * @param pageNo numero di pagina
+     * @param pageSize dimensione della pagina
+     * @param sortBy ordinamento
+     * @param sortDir direzione dell'ordinamento
+     * @return lista di utenti
+     */
+    @Override
+    public PagedResponseDTO<UserDTO> getAllUsers( int pageNo, int pageSize, String sortBy, String sortDir) {
+        PagedResponseDTO<UserDTO> pagedUsers = userApiService.getAllUsers(pageNo, pageSize, sortBy, sortDir).block();
+
+        UserDTOInternal user = getUserByAuthentication();
+        ProfileDTO profile = getProfile( user.getId() );
+
+        int power = profile.getPower();
+
+        if( pagedUsers == null ) {
+            throw new appException( HttpStatus.BAD_REQUEST, ErrorCodeList.NF404 );
+        }
+        List<UserDTO> users = pagedUsers.getContent();
+        List<UserDTO> usersGreater = users.stream()
+                .filter( u -> {
+                    ProfileDTO profileDTO = getProfile( u.getId() );
+                    return profileDTO.getPower() >= power;
+                } )
+                .toList();
+
+        PagedResponseDTO<UserDTO> pagedResponseDTO = new PagedResponseDTO<>();
+        pagedResponseDTO.setPageNo( pagedUsers.getPageNo() );
+        pagedResponseDTO.setPageSize( pagedUsers.getPageSize() );
+        pagedResponseDTO.setTotalElements( pagedUsers.getTotalElements() );
+        pagedResponseDTO.setTotalPages( pagedUsers.getTotalPages() );
+        pagedResponseDTO.setLast( pagedUsers.isLast() );
+        pagedResponseDTO.setContent( usersGreater );
+
+        return pagedResponseDTO;
+    }
+
+    @Override
+    public UserDTO modifyUser( Long id, UserDTO userDTO ) {
+        return userApiService.modifyUser( id, userDTO ).block();
+    }
+
+    @Override
+    public void deleteUser( Long id ) {
+        userApiService.deleteUser( id ).block();
+    }
+
+    /* GET USER BY AUTHENTICATION
+     * Questo metodo recupera l'utente autenticato dal database.
+     */
+    @Override
+    public UserDTOInternal getUserByAuthentication() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        return findByUsernameOrEmail( email )
+                .orElseThrow( () -> new appException( HttpStatus.BAD_REQUEST, ErrorCodeList.NF404 ) );
     }
 }
