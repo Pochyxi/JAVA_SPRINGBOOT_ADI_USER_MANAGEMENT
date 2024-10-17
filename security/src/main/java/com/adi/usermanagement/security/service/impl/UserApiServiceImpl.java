@@ -97,6 +97,23 @@ public class UserApiServiceImpl implements UserApiService {
     }
 
     @Override
+    public Mono<PagedResponseDTO<UserDTO>> getUsersByEmailContainsIgnoreCase(String email, int pageNo, int pageSize,
+                                                                             String sortBy, String sortDir) {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(BASE_URI + "/email_contains/" + email)
+                        .queryParam("pageNo", pageNo)
+                        .queryParam("pageSize", pageSize)
+                        .queryParam("sortBy", sortBy)
+                        .queryParam("sortOrder", sortDir)
+                        .build())
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError)
+                .bodyToMono( new ParameterizedTypeReference<>() {
+                });
+    }
+
+    @Override
     public Mono<UserDTO> modifyUser( Long id, UserDTO userDTO ) {
         return webClient.put()
                 .uri( BASE_URI + "/update/{id}", id )

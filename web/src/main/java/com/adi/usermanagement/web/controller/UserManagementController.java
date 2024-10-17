@@ -89,4 +89,17 @@ public class UserManagementController {
 
         return new ResponseEntity<>( HttpStatus.OK );
     }
+
+    @GetMapping("/email_contains/{email}")
+    @PreAuthorize("hasAuthority('USER_READ')")
+    public ResponseEntity<PagedResponseDTO<UserDTO>> getByEmailContains(
+            @PathVariable("email") String email,
+            @RequestParam(value = "pageNo", defaultValue = "${app.pagination.default_pageNumber}") int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "${app.pagination.default_pageSize}") int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "${app.pagination.default_sortBy}", required = false) String sortBy,
+            @RequestParam(value = "sortOrder", defaultValue = "${app.pagination.default_sortDirection}") String sortDir
+    ) {
+
+        return new ResponseEntity<>( userService.getUsersByEmailContainsIgnoreCase( email,pageNo, pageSize, sortBy, sortDir), HttpStatus.OK );
+    }
 }

@@ -13,6 +13,9 @@ public interface UserApiService {
     Mono<Void> signup( SignupDTO signupDTO );
     Mono<ProfileDTO> getProfile( Long userId );
     Mono<PagedResponseDTO<UserDTO>> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir);
+    Mono<PagedResponseDTO<UserDTO>> getUsersByEmailContainsIgnoreCase(String email, int pageNo, int pageSize,
+                                                                      String sortBy,
+                                                                      String sortDir);
     Mono<UserDTO> modifyUser( Long id, UserDTO userDTO );
     Mono<Void> deleteUser( Long id );
 }

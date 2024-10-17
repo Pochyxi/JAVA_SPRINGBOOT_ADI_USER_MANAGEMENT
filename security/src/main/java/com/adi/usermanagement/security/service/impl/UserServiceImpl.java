@@ -76,31 +76,27 @@ public class UserServiceImpl implements UserService {
     public PagedResponseDTO<UserDTO> getAllUsers( int pageNo, int pageSize, String sortBy, String sortDir) {
         PagedResponseDTO<UserDTO> pagedUsers = userApiService.getAllUsers(pageNo, pageSize, sortBy, sortDir).block();
 
-        UserDTOInternal user = getUserByAuthentication();
-        ProfileDTO profile = getProfile( user.getId() );
+        int power = getPowerOfAuthenticatedUser();
 
-        int power = profile.getPower();
+        return filterUsersByPower( pagedUsers, power );
+    }
 
-        if( pagedUsers == null ) {
-            throw new appException( HttpStatus.BAD_REQUEST, ErrorCodeList.NF404 );
-        }
-        List<UserDTO> users = pagedUsers.getContent();
-        List<UserDTO> usersGreater = users.stream()
-                .filter( u -> {
-                    ProfileDTO profileDTO = getProfile( u.getId() );
-                    return profileDTO.getPower() >= power;
-                } )
-                .toList();
+    /**
+     * Ritorna tutti gli utenti con email che contiene la stringa passata
+     * @param email stringa da cercare
+     * @param pageNo numero di pagina
+     * @param pageSize dimensione della pagina
+     * @param sortBy ordinamento
+     * @param sortDir direzione dell'ordinamento
+     * @return lista di utenti
+     */
+    @Override
+    public PagedResponseDTO<UserDTO> getUsersByEmailContainsIgnoreCase( String email, int pageNo, int pageSize, String sortBy, String sortDir) {
+        PagedResponseDTO<UserDTO> pagedUsers = userApiService.getUsersByEmailContainsIgnoreCase( email, pageNo, pageSize, sortBy, sortDir ).block();
 
-        PagedResponseDTO<UserDTO> pagedResponseDTO = new PagedResponseDTO<>();
-        pagedResponseDTO.setPageNo( pagedUsers.getPageNo() );
-        pagedResponseDTO.setPageSize( pagedUsers.getPageSize() );
-        pagedResponseDTO.setTotalElements( pagedUsers.getTotalElements() );
-        pagedResponseDTO.setTotalPages( pagedUsers.getTotalPages() );
-        pagedResponseDTO.setLast( pagedUsers.isLast() );
-        pagedResponseDTO.setContent( usersGreater );
+        int power = getPowerOfAuthenticatedUser();
 
-        return pagedResponseDTO;
+        return filterUsersByPower( pagedUsers, power );
     }
 
     @Override
@@ -125,5 +121,36 @@ public class UserServiceImpl implements UserService {
 
         return findByUsernameOrEmail( email )
                 .orElseThrow( () -> new appException( HttpStatus.BAD_REQUEST, ErrorCodeList.NF404 ) );
+    }
+
+
+    private PagedResponseDTO<UserDTO> filterUsersByPower( PagedResponseDTO<UserDTO> pagedUsers, int power ) {
+        if( pagedUsers == null ) {
+            throw new appException( HttpStatus.BAD_REQUEST, ErrorCodeList.NF404 );
+        }
+        List<UserDTO> users = pagedUsers.getContent();
+        List<UserDTO> usersGreater = users.stream()
+                .filter( u -> {
+                    ProfileDTO profileDTO = getProfile( u.getId() );
+                    return profileDTO.getPower() >= power;
+                } )
+                .toList();
+
+        PagedResponseDTO<UserDTO> pagedResponseDTO = new PagedResponseDTO<>();
+        pagedResponseDTO.setPageNo( pagedUsers.getPageNo() );
+        pagedResponseDTO.setPageSize( pagedUsers.getPageSize() );
+        pagedResponseDTO.setTotalElements( pagedUsers.getTotalElements() );
+        pagedResponseDTO.setTotalPages( pagedUsers.getTotalPages() );
+        pagedResponseDTO.setLast( pagedUsers.isLast() );
+        pagedResponseDTO.setContent( usersGreater );
+
+        return pagedResponseDTO;
+    }
+
+    private int getPowerOfAuthenticatedUser() {
+        UserDTOInternal user = getUserByAuthentication();
+        ProfileDTO profile = getProfile( user.getId() );
+
+        return profile.getPower();
     }
 }

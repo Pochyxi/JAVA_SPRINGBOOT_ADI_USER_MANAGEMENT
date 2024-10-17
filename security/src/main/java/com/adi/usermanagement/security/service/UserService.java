@@ -18,6 +18,8 @@ public interface UserService {
     boolean existsByUsernameOrEmail( String usernameOrEmail );
 
     PagedResponseDTO<UserDTO> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir);
+    PagedResponseDTO<UserDTO> getUsersByEmailContainsIgnoreCase(String email, int pageNo, int pageSize, String sortBy,
+                                                                String sortDir);
 
     UserDTOInternal getUserByAuthentication();
 
