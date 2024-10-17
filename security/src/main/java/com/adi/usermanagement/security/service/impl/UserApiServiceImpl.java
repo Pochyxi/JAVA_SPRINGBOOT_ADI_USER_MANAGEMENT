@@ -93,7 +93,8 @@ public class UserApiServiceImpl implements UserApiService {
     }
 
     @Override
-    public Mono<PagedResponseDTO<UserDTO>> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir) {
+    public Mono<PagedResponseDTO<UserDTO>> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir,
+                                                       int powerOfUser) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(BASE_URI + "/all")
@@ -101,6 +102,7 @@ public class UserApiServiceImpl implements UserApiService {
                         .queryParam("pageSize", pageSize)
                         .queryParam("sortBy", sortBy)
                         .queryParam("sortOrder", sortDir)
+                        .queryParam("powerOfUser", powerOfUser)
                         .build())
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError)

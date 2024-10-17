@@ -13,7 +13,7 @@ public interface UserApiService {
     Mono<Set<ProfilePermissionDTO>> getProfilePermissions( Long profileId);
     Mono<Void> signup( SignupDTO signupDTO );
     Mono<ProfileDTO> getProfile( Long userId );
-    Mono<PagedResponseDTO<UserDTO>> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir);
+    Mono<PagedResponseDTO<UserDTO>> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir, int powerOfUser);
     Mono<PagedResponseDTO<UserDTO>> getUsersByEmailContainsIgnoreCase(String email, int pageNo, int pageSize,
                                                                       String sortBy,
                                                                       String sortDir);

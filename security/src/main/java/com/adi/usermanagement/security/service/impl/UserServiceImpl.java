@@ -74,11 +74,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public PagedResponseDTO<UserDTO> getAllUsers( int pageNo, int pageSize, String sortBy, String sortDir) {
-        PagedResponseDTO<UserDTO> pagedUsers = userApiService.getAllUsers(pageNo, pageSize, sortBy, sortDir).block();
-
         int power = getPowerOfAuthenticatedUser();
 
-        return filterUsersByPower( pagedUsers, power );
+        return userApiService.getAllUsers(pageNo, pageSize, sortBy, sortDir, power).block();
     }
 
     /**
@@ -165,5 +163,10 @@ public class UserServiceImpl implements UserService {
         ProfileDTO profile = getProfile( user.getId() );
 
         return profile.getPower();
+    }
+
+    private String getEmailOfAuthenticatedUser() {
+        UserDTOInternal user = getUserByAuthentication();
+        return user.getEmail();
     }
 }
