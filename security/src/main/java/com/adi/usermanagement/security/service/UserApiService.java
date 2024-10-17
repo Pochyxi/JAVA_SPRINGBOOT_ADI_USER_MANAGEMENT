@@ -20,4 +20,8 @@ public interface UserApiService {
     Mono<UserDTO> modifyUser( Long id, UserDTO userDTO );
     Mono<Void> deleteUser( Long id );
     Mono<Void> verifyToken( String token, TokenType tokenType );
+    Mono<Void> changePassword( ChangePasswordDTO changePasswordDTO, String token );
+    Mono<Void> changeEmail( Long userId, String email );
+    Mono<Void> recoveryPassword( String email );
+    Mono<Void> resendVerificationRequest( Long userId );
 }

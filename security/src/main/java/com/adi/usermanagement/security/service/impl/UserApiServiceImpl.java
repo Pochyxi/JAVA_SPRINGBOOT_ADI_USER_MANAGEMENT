@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -82,6 +83,16 @@ public class UserApiServiceImpl implements UserApiService {
     }
 
     @Override
+    public Mono<Void> changePassword( ChangePasswordDTO changePasswordDTO, String token ) {
+        return webClient.put()
+                .uri( BASE_URI + "/change_password?token={token}", token )
+                .bodyValue( changePasswordDTO )
+                .retrieve()
+                .onStatus( status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError )
+                .bodyToMono( Void.class );
+    }
+
+    @Override
     public Mono<PagedResponseDTO<UserDTO>> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -134,19 +145,61 @@ public class UserApiServiceImpl implements UserApiService {
     }
 
     @Override
-    public Mono<Void> verifyToken( String token, TokenType tokenType ) {
+    public Mono<Void> verifyToken(String token, TokenType tokenType) {
         return webClient.get()
-                .uri( BASE_URI + "/verify?token={token}&tokentype={tokentype}", token, tokenType )
+                .uri(uriBuilder -> {
+                    // Costruisci il path di base
+                    UriBuilder builder = uriBuilder.path(BASE_URI + "/verify");
+
+                    // Aggiungi parametri alla query solo se presenti
+                    if (token != null && !token.isEmpty()) {
+                        builder.queryParam("token", token);
+                    }
+                    if (tokenType != null) {
+                        builder.queryParam("tokentype", tokenType);
+                    }
+
+                    // Costruisci e ritorna l'URI finale
+                    return builder.build();
+                })
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError)
+                .bodyToMono(Void.class);
+    }
+
+    @Override
+    public Mono<Void> changeEmail( Long userId, String email ) {
+        return webClient.put()
+                .uri( BASE_URI + "/change_email?userId={userId}&email={email}", userId, email )
                 .retrieve()
                 .onStatus( status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError )
                 .bodyToMono( Void.class );
     }
 
+    @Override
+    public Mono<Void> recoveryPassword( String email ) {
+        return webClient.get()
+                .uri( BASE_URI + "/recovery_password?email={email}", email )
+                .retrieve()
+                .onStatus( status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError )
+                .bodyToMono( Void.class );
+    }
+
+    @Override
+    public Mono<Void> resendVerificationRequest( Long userId ) {
+        return webClient.put()
+                .uri( BASE_URI + "/resend_verification?userId={userId}", userId )
+                .retrieve()
+                .onStatus( status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError )
+                .bodyToMono( Void.class );
+    }
+
+
     private Mono<? extends Throwable> handleError( ClientResponse clientResponse) {
         return clientResponse.bodyToMono( ErrorDetailsDTO.class)
                 .flatMap(errorDetails -> {
                     HttpStatus status = ( HttpStatus ) clientResponse.statusCode();
-                    String timestamp = errorDetails.getTimestamp().toString() != null ?
+                    String timestamp = errorDetails.getTimestamp() != null ?
                             errorDetails.getTimestamp().toString() : "N/A";
                     String message = errorDetails.getMessage() != null ?
                             errorDetails.getMessage() : "N/A";
