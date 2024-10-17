@@ -123,6 +123,19 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow( () -> new appException( HttpStatus.BAD_REQUEST, ErrorCodeList.NF404 ) );
     }
 
+    private UserDTO mapUserDTOInternalToUserDTO( UserDTOInternal user ) {
+        return UserDTO.builder()
+                .id( user.getId() )
+                .email( user.getEmail() )
+                .username( user.getUsername() )
+                .isEnabled( user.isEnabled() )
+                .dateTokenCheck( user.getDateTokenCheck() )
+                .isTemporaryPassword( user.isTemporaryPassword() )
+                .profileName( user.getProfileName() )
+                .profilePermissions( user.getProfilePermissions() )
+                .build();
+    }
+
 
     private PagedResponseDTO<UserDTO> filterUsersByPower( PagedResponseDTO<UserDTO> pagedUsers, int power ) {
         if( pagedUsers == null ) {

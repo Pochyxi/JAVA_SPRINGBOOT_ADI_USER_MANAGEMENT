@@ -1,6 +1,7 @@
 package com.adi.usermanagement.security.service;
 
 import com.adi.usermanagement.security.dto.*;
+import com.adi.usermanagement.security.enumerated.TokenType;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -18,4 +19,5 @@ public interface UserApiService {
                                                                       String sortDir);
     Mono<UserDTO> modifyUser( Long id, UserDTO userDTO );
     Mono<Void> deleteUser( Long id );
+    Mono<Void> verifyToken( String token, TokenType tokenType );
 }

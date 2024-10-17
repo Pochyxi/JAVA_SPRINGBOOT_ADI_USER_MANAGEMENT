@@ -4,6 +4,7 @@ import com.adi.usermanagement.security.dto.ErrorDetailsDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,6 +54,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         webRequest.getDescription( false ) );
 
                 return new ResponseEntity<>( errorDetailsDto, HttpStatus.BAD_REQUEST );
+            }
+
+            case AuthorizationDeniedException ignored -> {
+                ErrorDetailsDTO errorDetailsDto = new ErrorDetailsDTO( new Date(), ErrorCodeList.ACCESSDENIED,
+                        webRequest.getDescription( false ) );
+
+                return new ResponseEntity<>( errorDetailsDto, HttpStatus.FORBIDDEN );
             }
 
             case null, default -> {

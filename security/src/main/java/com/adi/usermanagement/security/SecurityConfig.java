@@ -91,10 +91,10 @@ public class SecurityConfig {
                 .csrf( AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( ( authorize ) -> authorize
                         // TUTTE LE RICHIESTE CHE INIZIANO CON /API/AUTH/ SONO ACCESSIBILI DA TUTTI
-                        .requestMatchers( "/api/user-management/**" ).permitAll()
+                        .requestMatchers( "/api/user-management/user/**" ).permitAll()
 
                         // SERVIREBBE NEL CASO SI IMPLEMENTA LO SWAGGER PER REINDIRIZZARE A TALE PAGINA
-                        .requestMatchers( "/" ).permitAll()
+                        .requestMatchers( "/", "/api/user-management/auth/**" ).permitAll()
 
                         // TUTTE LE ALTRE RICHIESTE SONO ACCESSIBILI SOLO DA UTENTI AUTENTICATI
                         .anyRequest().authenticated() ).exceptionHandling( exception -> exception

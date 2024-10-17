@@ -1,6 +1,7 @@
 package com.adi.usermanagement.security.service.impl;
 
 import com.adi.usermanagement.security.dto.*;
+import com.adi.usermanagement.security.enumerated.TokenType;
 import com.adi.usermanagement.security.exception.appException;
 import com.adi.usermanagement.security.service.UserApiService;
 import lombok.RequiredArgsConstructor;
@@ -127,6 +128,15 @@ public class UserApiServiceImpl implements UserApiService {
     public Mono<Void> deleteUser( Long id ) {
         return webClient.delete()
                 .uri( BASE_URI + "/delete/{id}", id )
+                .retrieve()
+                .onStatus( status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError )
+                .bodyToMono( Void.class );
+    }
+
+    @Override
+    public Mono<Void> verifyToken( String token, TokenType tokenType ) {
+        return webClient.get()
+                .uri( BASE_URI + "/verify?token={token}&tokentype={tokentype}", token, tokenType )
                 .retrieve()
                 .onStatus( status -> status.is4xxClientError() || status.is5xxServerError(), this::handleError )
                 .bodyToMono( Void.class );

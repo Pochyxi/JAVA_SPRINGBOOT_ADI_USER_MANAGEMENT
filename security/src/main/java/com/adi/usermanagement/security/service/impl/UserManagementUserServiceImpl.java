@@ -1,6 +1,7 @@
 package com.adi.usermanagement.security.service.impl;
 
 import com.adi.usermanagement.security.dto.SignupDTO;
+import com.adi.usermanagement.security.enumerated.TokenType;
 import com.adi.usermanagement.security.service.UserApiService;
 import com.adi.usermanagement.security.service.UserManagementService;
 import lombok.RequiredArgsConstructor;
@@ -15,5 +16,10 @@ public class UserManagementUserServiceImpl implements UserManagementService {
     @Override
     public void signup( SignupDTO signupDTO ) {
         this.userApiService.signup( signupDTO ).block();
+    }
+
+    @Override
+    public void verifyToken( String token, TokenType tokenType ) {
+        userApiService.verifyToken( token, tokenType ).block();
     }
 }

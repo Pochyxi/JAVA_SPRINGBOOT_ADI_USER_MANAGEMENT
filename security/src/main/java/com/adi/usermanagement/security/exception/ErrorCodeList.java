@@ -15,4 +15,10 @@ public class ErrorCodeList {
 
     // AL CAMBIO PASSWORD TUTTI I VECCHI TOKEN DIVENTANO OBSOLETI
     public static final String TOKENOBSOLETE = "TOKENOBSOLETE";
+
+    // ACCESSO NEGATO
+    public static final String ACCESSDENIED = "ACCESSDENIED";
+
+    // TOKEN NON VALIDO
+    public static final String INVALID_TOKEN = "INVALID_TOKEN";
 }
