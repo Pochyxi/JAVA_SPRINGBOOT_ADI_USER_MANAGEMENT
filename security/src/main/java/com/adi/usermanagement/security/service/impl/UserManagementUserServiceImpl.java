@@ -2,6 +2,7 @@ package com.adi.usermanagement.security.service.impl;
 
 import com.adi.usermanagement.security.dto.ChangePasswordDTO;
 import com.adi.usermanagement.security.dto.SignupDTO;
+import com.adi.usermanagement.security.dto.UserDTO;
 import com.adi.usermanagement.security.enumerated.TokenType;
 import com.adi.usermanagement.security.service.UserApiService;
 import com.adi.usermanagement.security.service.UserManagementService;
@@ -42,5 +43,15 @@ public class UserManagementUserServiceImpl implements UserManagementService {
     @Override
     public void resendVerificationRequest( Long userId ) {
         userApiService.resendVerificationRequest( userId ).block();
+    }
+
+    @Override
+    public UserDTO createUser( SignupDTO signupDTO ) {
+        return userApiService.createUser( signupDTO ).block();
+    }
+
+    @Override
+    public UserDTO findByEmail( String email ) {
+        return userApiService.findByEmail( email ).block();
     }
 }

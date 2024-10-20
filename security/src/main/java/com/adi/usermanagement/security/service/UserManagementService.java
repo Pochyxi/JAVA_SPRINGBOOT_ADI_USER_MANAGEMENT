@@ -2,7 +2,9 @@ package com.adi.usermanagement.security.service;
 
 import com.adi.usermanagement.security.dto.ChangePasswordDTO;
 import com.adi.usermanagement.security.dto.SignupDTO;
+import com.adi.usermanagement.security.dto.UserDTO;
 import com.adi.usermanagement.security.enumerated.TokenType;
+import jakarta.validation.Valid;
 
 public interface UserManagementService {
 
@@ -17,4 +19,8 @@ public interface UserManagementService {
     void recoveryPassword( String email );
 
     void resendVerificationRequest( Long userId );
+
+    UserDTO createUser( @Valid SignupDTO signupDTO );
+
+    UserDTO findByEmail( String email );
 }

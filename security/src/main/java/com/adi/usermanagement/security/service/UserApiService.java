@@ -24,4 +24,8 @@ public interface UserApiService {
     Mono<Void> changeEmail( Long userId, String email );
     Mono<Void> recoveryPassword( String email );
     Mono<Void> resendVerificationRequest( Long userId );
+
+    Mono<UserDTO> createUser( SignupDTO signupDTO );
+
+    Mono<UserDTO> findByEmail( String email );
 }

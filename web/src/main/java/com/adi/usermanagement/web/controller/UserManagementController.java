@@ -2,6 +2,7 @@ package com.adi.usermanagement.web.controller;
 
 import com.adi.usermanagement.security.dto.ChangePasswordDTO;
 import com.adi.usermanagement.security.dto.SignupDTO;
+import com.adi.usermanagement.security.dto.UserDTO;
 import com.adi.usermanagement.security.enumerated.TokenType;
 import com.adi.usermanagement.security.service.UserManagementService;
 import jakarta.validation.Valid;
@@ -17,6 +18,22 @@ import org.springframework.web.bind.annotation.*;
 public class UserManagementController {
 
     private final UserManagementService userManagementService;
+
+    @PostMapping("/create")
+    @PreAuthorize( "hasAuthority('USER_CREATE')" )
+    public ResponseEntity<UserDTO> createUser( @Valid @RequestBody SignupDTO signupDTO) {
+        UserDTO userDTO = userManagementService.createUser( signupDTO );
+
+        return new ResponseEntity<>( userDTO, HttpStatus.OK );
+    }
+
+    @GetMapping(value = "/findByEmail/{email}")
+    @PreAuthorize( "hasAuthority('USER_READ')" )
+    public ResponseEntity<UserDTO> findByEmail( @PathVariable("email") String email) {
+        UserDTO userDTO = userManagementService.findByEmail( email );
+
+        return new ResponseEntity<>( userDTO, HttpStatus.OK );
+    }
 
 
     /**
