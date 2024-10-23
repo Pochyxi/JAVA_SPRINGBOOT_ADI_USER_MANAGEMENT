@@ -4,6 +4,7 @@ import com.adi.usermanagement.security.dto.PagedResponseDTO;
 import com.adi.usermanagement.security.dto.UserDTO;
 import com.adi.usermanagement.security.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
